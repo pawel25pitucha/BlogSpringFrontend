@@ -1,0 +1,37 @@
+
+.EditPost{
+    margin-top: 20px;
+    border-style: solid;
+    border-width: 1px;
+    background-color: lightgrey;
+}
+.EditHeader{
+    display: flex;
+    margin: 5px;
+}
+
+.EditHeader a{
+    margin-left: 2px;
+}
+
+.EditContent{
+    margin: 5px;
+    min-height: 50px;
+    color: black;
+}
+
+.EditOperations{
+    padding: 5px;
+    width: 100%;
+    margin-right: 5px;
+    display: flex;
+}
+
+.editAuthorsInput{
+    height:25px;
+}
+.EditTextArea{
+    width:100%;
+    height:70px;
+}
+

@@ -1,0 +1,16 @@
+.Comment{
+    margin: 10px;
+    padding: 8px;
+    
+}
+.Comment-content{
+    display: flex;
+    justify-content: space-between;
+    height: fit-content;
+    background-color: #12343b ;
+    color: snow;
+    margin-left: 5px;
+    padding: 5px;
+    border: 1px solid;
+    border-radius:0  10px 10px 10px  ;
+}

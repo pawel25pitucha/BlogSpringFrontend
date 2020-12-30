@@ -1,0 +1,52 @@
+
+.Post{
+    margin-top: 20px;
+    border-style: solid;
+    border-width: 1px;
+    background-color: peachpuff;
+}
+.Header{
+    display: flex;
+    margin: 5px;
+}
+
+.Header a{
+    margin-left: 2px;
+}
+.Comments-container{
+    margin: 5px;
+}
+.Content{
+    margin: 5px;
+    min-height: 50px;
+    color: black;
+}
+.Comments-container button{
+        background:#12343b;
+        border:none;
+        padding:5px;
+        color:white;
+        border-radius:5px;
+        transition:0.3s ;
+    
+}
+
+.Operations{
+    padding: 5px;
+    width: 100%;
+    margin-right: 5px;
+    display: flex;
+}
+
+.scroll-container-comments{
+
+    height: fit-content;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+    width: 0px;  /* Remove scrollbar space */
+    background: transparent;  /* Optional: just make scrollbar invisible */
+}
+

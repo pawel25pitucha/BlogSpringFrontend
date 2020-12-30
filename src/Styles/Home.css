@@ -1,0 +1,26 @@
+#col-1{
+    background-color:#12343b;
+    height: 100vh;
+}
+#col-2{
+    background-color: #A3BCB6;
+    height: 100vh;
+    overflow: hidden;
+
+}
+#col-3{
+    background-color:  #12343b;
+    height: 100vh;
+
+}
+.scroll-container{
+
+    height: 100vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+    width: 0px;  /* Remove scrollbar space */
+    background: transparent;  /* Optional: just make scrollbar invisible */
+}

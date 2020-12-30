@@ -1,0 +1,12 @@
+.Navi{
+    width:100%;
+    margin: auto;
+}
+.mb-3{
+  width:40% !important ;
+  height: 15px;
+  margin-left: auto;
+}
+.Navbar{
+  border-bottom: solid 1px;
+}
