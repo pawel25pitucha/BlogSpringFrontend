@@ -1,5 +1,9 @@
 # DEMO LIVE 
 Click [https://blog-spring-frontend.herokuapp.com](https://blog-spring-frontend.herokuapp.com/) to view in the browser.
+# Screenshots
+![](https://github.com/pawel25pitucha/BlogSpringFrontend/blob/main/Screenshot_4.png)
+![](https://github.com/pawel25pitucha/BlogSpringFrontend/blob/main/Screenshot_1.png)
+![](https://github.com/pawel25pitucha/BlogSpringFrontend/blob/main/Screenshot_2.png)
 
 
 
