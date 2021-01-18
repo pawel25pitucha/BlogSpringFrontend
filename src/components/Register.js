@@ -14,6 +14,9 @@ function Register(props) {
         setNickname(e.target.value);
     }
     const submitHandle=()=> {
+        if(password.length<4)alert ('hasło jest za krótkie');
+        else if(nickname==='') alert('Musisz podać nazwę');
+        else {
         axios({
             method: 'POST',
             url: `${url}/api/user/register`,
@@ -27,6 +30,7 @@ function Register(props) {
         });
         setNickname("");
         setPassword("");
+    }
     }
     return (
         <div>
