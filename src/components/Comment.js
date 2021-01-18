@@ -5,47 +5,59 @@ import axios from 'axios'
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import EditComment from './EditComment';
-const url='https://blog-api-spring.herokuapp.com';
+const url='http://localhost:8080';
 function Comment(props) {
-    const [comment, setComment]= useState([]);
     const [edit,setEdit] = useState(false);
-
-
-    async function loadComment(){
-        const result = await axios.get(`${url}/comments/get${props.id}`);
-        setComment(result.data);
-        console.log(result.data);
-     }
+    const [author,setAuthor]= useState(null);
+    const [checked,setChecked] = useState(false);
+  
     useEffect(() => {
-      loadComment();
+        axios.get(`${url}/api/author/get${props.authorId}`)
+        .then(res=> {
+            setAuthor(res.data);
+            check(res.data);
+        }
+             );
     }, [])
 
-    const deleteComment = async() => {
-        await axios.delete(`${url}/comment${props.id}/delete`)
+    const deleteComment = () => {
+        axios.delete(`${url}/api/comment/delete${props.id}`)
         .then(res => {
-            console.log(res);
             props.reload();
         })
     }
     const changeStatus = () => {
         setEdit(false);
-        loadComment();
+        props.reload();
     }
+    function check(author) {
+        if(typeof props.user==='undefined'){
+            setChecked(false);
+        }else{
+            if(props.user.name === 'administrator'){
+                setChecked(true);
+            }else{
+                if( author.name=== props.user.name){
+                    setChecked(true);
+                }   
+        }
+        }
+       }
     
     return (
         <div>
             {
                 (edit) ? 
-                <EditComment changeStatus={changeStatus} id={props.id} postId={props.postId} author={comment.username} content={comment.commentContent}/>
+                <EditComment changeStatus={changeStatus} post={props.post} id={props.id} postId={props.postId} author={author} content={props.content}/>
                 :
                 <div className="Comment">
                     <div>
                         <AccountCircleIcon/>
                         <a>authorname: {' '}</a>
-                        <a>{comment.username}</a>
+                        <a>{author? author.name : ''}</a>
                     </div>
                     <div className="Comment-content">
-                            {comment.commentContent}<div><EditIcon onClick={()=>setEdit(true)} fontSize="small"/><DeleteIcon onClick={deleteComment} fontSize="small"/></div>
+                            {props.content}{checked ? <div><EditIcon onClick={()=>setEdit(true)} fontSize="small"/><DeleteIcon onClick={deleteComment} fontSize="small"/></div> : ''}
                     </div>
                  
                 </div>

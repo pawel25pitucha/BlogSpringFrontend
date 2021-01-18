@@ -3,23 +3,33 @@ import React, { useState } from 'react'
 import {Container,Row ,Col} from 'react-bootstrap'
 import '../Styles/CreateComment.css'
 import axios from 'axios'
-const url='https://blog-api-spring.herokuapp.com';
+import PickerInput from './PickerInput';
+const url='http://localhost:8080';
 function CreateComment(props) {
     const [authorValue,setAuthorValue] = useState('');
     const [contentValue,setContentValue] = useState('');
 
 
-    const authorChange= (e) =>{
-        setAuthorValue(e.target.value);
-    }
+
     const contentChange= (e) =>{
         setContentValue(e.target.value);
     }
-    const addComment=async () =>{
+    const addAuthor=(author)=>{
+        setAuthorValue(author.id);
+    }
+    const addComment=() =>{
+       
         if(authorValue==='' || contentValue === '') alert('Comment must include author and content ');
         else{
-       await axios.post(`${url}/comments/add`,{'postId': `${props.postId}` , 'username' : `${authorValue}` , 'commentContent' : `${contentValue}`})
-        .then(res => {
+        axios({
+            method: 'POST',
+            url: `${url}/api/comment/save`,
+            data: {
+                authorId: authorValue,
+                content: contentValue,
+                post:props.post
+            }
+          }).then(res => {
             console.log(res);
             props.reload()
         });
@@ -29,7 +39,7 @@ function CreateComment(props) {
         <Container fluid className="CreateCommentContainer">
             <Row>
                 <Col>
-                    <input onChange={e => authorChange(e)} value={authorValue} placeholder="Who are you?"></input>
+                    <PickerInput add={addAuthor}/>
                 </Col>
             </Row>
             <Row>

@@ -11,29 +11,32 @@ import axios from 'axios'
 import EditPost from './EditPost';
 import Modal from "react-bootstrap/Modal";
 import "bootstrap/dist/css/bootstrap.min.css";
-const url='https://blog-api-spring.herokuapp.com';
+import { useSelector } from 'react-redux';
+const url='http://localhost:8080';
 function Post(props) {
     const [commentsVisibility,setCommentVisibility] = useState(false);
     const [authors , setAuthors]= useState([]);
+    const [checked,setChecked]= useState(false);
     const [comments, setComments]= useState([]);
     const [editStatus, setEditStatus]=useState(false);
     const [modalVisibility, setModalVisibility] = useState(false);
+    const isLogged = useSelector(state => state);
     const showComments = () =>{
         setCommentVisibility(!commentsVisibility);
     }
 
-    async function loadComments(){
-        const result = await axios.get(`${url}/post${props.id}/comments`);
-        if(result.data!=null) setComments(result.data);
+    function loadComments(){
+        axios.get(`${url}/api/comment/get/post${props.id}`)
+        .then(res=> {
+            setComments(res.data);
+        })
+      
    }
-    async function loadAuthors(){
-        const result = await axios.get(`${url}/post${props.id}/authors`);
-        if(result.data!=null) setAuthors(result.data);
-       
-   }
+  
 
     useEffect(() => {
-      loadAuthors();
+      setAuthors(props.authors);
+      check(props.authors);
       loadComments();
     }, [])
 
@@ -43,16 +46,34 @@ function Post(props) {
     }
     const editDone = () => {
         console.log("edit done");
-        window.location.reload();
+        editPost();
+        props.loadPosts();
     }
    
+    function check(authors) {
+        if(typeof props.user==='undefined'){
+            setChecked(false);
+        }else{
+            if(props.user.name === 'administrator'){
+                setChecked(true);
+            }else{
+                authors.map(author => {
+                console.log(author.name + " ] " + props.user.name);
+                if( author.name=== props.user.name){
+                    console.log("zgadza sie");
+                    setChecked(true);
+                } 
+                })
+        }
+        }
+       }
 
     const renderComments= () => {
         if(commentsVisibility){
             return (
                 comments&&<div className="scroll-container-comments">
-                    <CreateComment reload={loadComments} postId={props.id}/>
-                    {comments.map(comment=> <div key={comment.id}><Comment reload={loadComments} id={comment.id} postId={props.id}/> </div>)}          
+                    <CreateComment post={{id: props.id,authors:authors,tags:props.tag,content:props.content}} reload={loadComments} postId={props.id}/>
+                    {comments.map(comment=> <div key={comment.id}><Comment reload={loadComments} post={{id: props.id,authors:authors,tags:props.tag,content:props.content}} user={props.user} content={comment.content} authorId={comment.authorId} id={comment.id} postId={props.id} post={{id: props.id,authors:authors,tags:props.tag,content:props.content}}/> </div>)}          
                  </div> 
             )
         }else {
@@ -61,11 +82,11 @@ function Post(props) {
     }
 
     const deletePost= async ()=>{
-       await axios.delete(`${url}/post${props.id}/delete`)
+       await axios.delete(`${url}/api/post/delete${props.id}`)
         .then(res => {
             console.log(res);
             setModalVisibility(false);
-            window.location.reload();
+            props.loadPosts();
         } )
     }
 
@@ -76,7 +97,7 @@ function Post(props) {
         
 <div>
             {(editStatus&&authors) ?  (
-                <EditPost editStatus={editDone} id={props.id} content={props.content}  authors={authors} tags={props.tag === 'undefined' ? '' : props.tag} />
+                <EditPost editStatus={editDone} id={props.id} content={props.content}  authors={authors} tags={props.tag} />
             ) : (
                 <div>
                 <div className="Post" >
@@ -90,7 +111,11 @@ function Post(props) {
                         </div>
                     </Col>
                     <Col>
-                        {props.tag === 'undefined' ? '' : `Tags: ${props.tag}`}
+                        {props.tag.map(tag=> {
+                            return (
+                                <a>{tag},</a>
+                            )
+                        })}
                     </Col>
                 </Row>
                 <Row>
@@ -111,10 +136,13 @@ function Post(props) {
                         </div>
                     </Col>
                     <Col xs="2"  sm="2"  md="2"  lg="2"  xl="2">
+                        {checked==true ?
                         <div className="Operations">
                             <EditIcon onClick={editPost}/>
                             <DeleteIcon onClick={() => setModalVisibility(true)}/>
                         </div>
+                        :''
+                        }   
                     </Col>
                 </Row>
             </Container>

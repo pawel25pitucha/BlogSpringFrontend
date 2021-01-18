@@ -8,13 +8,16 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import axios from 'axios';
-const url='https://blog-api-spring.herokuapp.com';
+import PickerInput from './PickerInput';
+const url='http://localhost:8080';
+
 function EditPost(props) {
     
     const [authors,setAuthors] =useState([]);
     const [deletedAuthors,setDelatedAuthors] =useState([]);
-    const [tags, setTags] = useState('');
+    const [tags, setTags] = useState([]);
     const [content, setContent] = useState('');
+    const [tagValue,setTagValue]=useState("");
 
     useEffect(() => {
         setAuthors(props.authors);
@@ -27,24 +30,24 @@ function EditPost(props) {
             return item.name !== author.name
         })
         setAuthors(arr);
-        deletedAuthors.push(author);
        
     }
-    const changeAuthors = (e) =>{
-  
-        if(e.key==='Enter'){
-          let author = {name : e.target.value};
-          const list = authors.concat([author]);
-          setAuthors(list);
-        }
+
+    const removeTag = (tag) => {
+        let arr = tags.filter(function(item) {
+            return item !== tag
+        })
+        setTags(arr);
+   
+       
     }
+ 
     const changeTag = (e) =>{
-  
-        if(e.key==='Enter'){
-    
-          setTags(e.target.value);
-       
-        }
+
+          setTags([...tags,tagValue]);
+    }
+    const handleChangeTag=(e)=>{
+        setTagValue(e.target.value);
     }
 
     const contentChange = (e) =>{
@@ -58,46 +61,30 @@ function EditPost(props) {
     }
 
     async function addPost(){     
-        await axios.post(`${url}/post/edit` ,{'id':`${props.id}`,'tag' : `${tags}` , 'postContent' : `${content}`})
-        .then(res=>{
-            addAuthor(props.id);
-            console.log(res.data);
-        }).catch(error => {
-            console.log(error);
-            alert("Post content is empty");
-        })
+        axios({
+            method: 'PUT',
+            url: `${url}/api/post/edit`,
+            data: {
+                id: props.id,
+                tags: tags,
+                content: content,
+                authors:authors
+            }
+          }).then(res=>{
+              console.log(res);
+              props.editStatus();
+          })
     }
 
-
-    async function addAuthor(postId){
-        await Promise.all( authors.map((author,index) => {
-            axios.post(`${url}/authors/add` ,{'name':`${author.name}`})
-            .then(res =>{
-                addAuthorsToPosts(res.data.id,postId);
-                if(index===authors.length-1) deleteAuthorsToPosts(postId)
-            });
-       }))
-   }
-   
-     async function addAuthorsToPosts(id,postId){
-            await axios.post(`${url}/post${postId}/addAuthor${id}`)
-            .catch(error => console.log(error));
+    const addAuthor=(author)=>{
+        if(author!=null){
+        if(authors.includes(author)) alert("Ten autor został już dodany")
+        else {const list = authors.concat([author]);
+        setAuthors(list);
+        }
+        }
     }
 
-    async function deleteAuthorsToPosts(postId){
-        
-        if(deletedAuthors.length===0) props.editStatus();
-        await Promise.all( deletedAuthors.map( (author,index) => {
-            axios.delete(`${url}/post${postId}/author${author.id}`)
-            .then(res =>{
-                console.log(res)
-                if(index===deletedAuthors.length-1) props.editStatus();
-            } )
-           .catch(error => console.log(error));
-        }));
-      
-     
-}
 
     return (
         <div className="EditPost" >
@@ -107,16 +94,22 @@ function EditPost(props) {
                 <div className="EditHeader">
                     <GroupIcon />
                     <h5>Authors:</h5>
-                    {authors.map((author) => {
+                    {authors&&authors.map((author) => {
                         return ( <a>{author.name} <RemoveCircleOutlineIcon onClick={removeAuthor.bind(this,author)}/></a>)
                     })} 
+                    <PickerInput add={addAuthor}/>
                 </div>
-                <input onKeyUp={e=>changeAuthors(e)} id="addAuthorInput" className="editAuthorsInput" placeholder={'Add new author'}></input><AddCircleOutlineIcon style={{color: "green"}}/>
+              
             </Col>
             <Col>
-                Tags: {tags} 
-                <input placeholder="Change tags" onKeyUp={e=>changeTag(e)}></input>
-                <AddCircleOutlineIcon style={{color: "green"}}/>
+                    Tags: {
+                        tags&&tags.map(tag=> {
+                            return (
+                                <a>{tag} <RemoveCircleOutlineIcon onClick={removeTag.bind(this,tag)}/>,</a>
+                            )
+                        })
+                    }
+                <input placeholder="Change tags" onChange={e=>handleChangeTag(e)} value={tagValue}></input><button onClick={changeTag}>add</button>
             </Col>
         </Row>
         <Row>
@@ -128,7 +121,7 @@ function EditPost(props) {
         </Row>
         <Row>
             <Col>
-                    <button onClick={saveChanges}>Save changes</button>
+                <button onClick={saveChanges}>Save changes</button>
             </Col>
             <Col xs="2"  sm="2"  md="2"  lg="2"  xl="2">
                 <div className="EditOperations">

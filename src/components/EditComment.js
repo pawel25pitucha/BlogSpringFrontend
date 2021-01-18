@@ -2,7 +2,7 @@ import React, { useEffect , useState} from 'react'
 import '../Styles/EditComment.css'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import axios from 'axios'
-const url='https://blog-api-spring.herokuapp.com';
+const url='http://localhost:8080';
 function EditComment(props) {
     const [content, setContent] = useState('');
     const [author, setAuthor] = useState('');
@@ -11,10 +11,19 @@ function EditComment(props) {
      setContent(props.content);
     }, [])
 
-    const saveComment = async () => {
+    const saveComment = () => {
         if(author==='' || content === '') alert('Comment must include author and content ');
         else{
-        await axios.post(`${url}/comments/edit`,{'id' : `${props.id}` , 'postId' : `${props.postId}`, 'username' : `${author}` , 'commentContent' : `${content}`})
+            axios({
+                method: 'PUT',
+                url: `${url}/api/comment/edit`,
+                data: {
+                    id: props.id,
+                    authorId: props.authorId,
+                    content: content,
+                    post:props.post
+                }
+              })
         .then(res => {
             console.log(res);
             props.changeStatus();
@@ -25,8 +34,7 @@ function EditComment(props) {
     <div className="EditComment">
         <div>
             <AccountCircleIcon/>
-            <a>authorname: {' '}</a>
-            <input  onChange={(e)=> setAuthor(e.target.value)} value={author}></input>
+            <a>authorname: {props.author.name}</a>
         </div>
         <div className="EditComment-content">   
              <textarea className="editInput" onChange={(e)=> setContent(e.target.value)} value={content}></textarea>

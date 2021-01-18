@@ -1,9 +1,8 @@
 import React, { useState } from 'react'
 import "../Styles/Home.css";
 import {Container,Row,Col} from 'react-bootstrap';
-import Navi from './Navi';
 import Board from './Board';
-function Home() {
+function Home(props) {
 
 
     return (
@@ -19,7 +18,7 @@ function Home() {
                             </Col>
                             <Col xs="12" sm="12" md="12" lg="12" xl="8">
                                 <div className="scroll-container">
-                                    <Board/>
+                                    <Board user={props.user}/>
                                 </div>
                             </Col>
                             <Col xs="0"  sm="0"  md ="0" lg="0"  xl="2"></Col>

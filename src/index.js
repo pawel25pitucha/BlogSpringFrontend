@@ -4,15 +4,26 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Router, Route } from 'react-router';
+import { Router } from 'react-router-dom';
+import { BrowserRouter, Route } from 'react-router-dom';
 import {browserHistory} from 'react-router';
 import Authors from './components/Authors';
-ReactDOM.render(
+import Register from './components/Register';
+import Home from './components/Home';
+import loggedReducer from './reducers/isLogged';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+const store= createStore(loggedReducer);
 
-    <Router history={browserHistory}>
+ReactDOM.render(
+  <Provider store={store}>
+    <BrowserRouter history={browserHistory}>
       <Route exact path="/" component={App}/>
-      <Route  path="/Authors" component={Authors}/>
-    </Router>
+      <Route  path="/authors" component={Authors}/>
+      <Route  path="/register" component={Register}/>
+      <Route  path="/home" component={Home}/>
+    </BrowserRouter>
+  </Provider>
 ,
   document.getElementById('root')
 );

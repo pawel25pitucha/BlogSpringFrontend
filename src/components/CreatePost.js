@@ -2,15 +2,14 @@ import React, { useEffect, useState } from 'react'
 import '../Styles/CreatePost.css'
 import {Button,Container,Row,Col} from 'react-bootstrap'
 import axios from 'axios'
-const url='https://blog-api-spring.herokuapp.com';
+import PickerInput from './PickerInput';
+const url='http://localhost:8080';
 function CreatePost(props) {
     const [tags,setTags]=useState([]);
     const [tagValue,setTagValue]=useState('');
     const [authorValue,setAuthorValue]=useState('');
     const [postContent,setPostContent] = useState('');
     const [authors, setAuthors] = useState([]);
-    const [authorId,setAuthorId]= useState('');
-    const [addStatus, setAddStatus]=useState(false);
 
 
     const handleClick= (e) =>{
@@ -24,17 +23,15 @@ function CreatePost(props) {
     }
 
     /*----------------------------------*/
-
-    const handleClickAuthor= (e) =>{
-        if(e.key==='Enter'){
-            authors.push(authorValue);
-            setAuthorValue('');
+    const addAuthor=(author) => {
+        if(author!=null){
+        if(!authors.includes(author)) setAuthors([...authors,author]);
+        else alert("już dodałeś tego autora")
         }
     }
-  
-    const handleChangeAuthor= (e) =>{
-        setAuthorValue(e.target.value);
-    }
+
+
+
     /*----------------------------------*/
     const postContentChange =(e) => {
         setPostContent(e.target.value);
@@ -48,41 +45,17 @@ function CreatePost(props) {
     }
 
     async function addPost(){     
-        await axios.post(`${url}/posts/add` ,{'tag' : `${tags[0]}` , 'postContent' : `${postContent}`})
-        .then(res=>{
-            addAuthor(res.data.id);
-            console.log(res.data);
-        }).catch( error => {
-            console.log(error);
-            alert("You forgot about posts content!")
-        });
+         axios({
+            method: 'POST',
+            url: `${url}/api/post/save`,
+            data: {
+            authors:authors,
+            content: postContent,
+            tags:tags,
+            }
+          }).then(res=> props.updatePosts());
+        
     }
-
-
-    async function addAuthor(postId){
-        await Promise.all( authors.map((author) => {
-            axios.post(`${url}/authors/add` ,{'name':`${author}`})
-            .then(res =>{
-                console.log(res);
-                addAuthorsToPosts(res.data.id,postId);
-            }).catch( error => {
-                console.log(error);    
-            })
-        }
-       ))
-   }
-   
-     async function addAuthorsToPosts(id,postId){
-             console.log(id);
-             console.log(postId);
-            await axios.post(`${url}/post${postId}/addAuthor${id}`)
-             .then(res=>{
-                 console.log(res);
-                 props.updatePosts();
-            })
-            .catch(error => console.log(error));
-    }
-
 
    
     return (
@@ -100,19 +73,18 @@ function CreatePost(props) {
                         :''
                     }
                 </Col>   
-                <Col>
-                    {
-                        authors.length>0 ? 
+                <Col>        
                         <div>
                             <a>Authors:</a>
                             {
-                            authors.map(author => (
-                            <a>{' '}{author},</a>
-                            ))
+                                authors.length?
+                                authors.map(author => {
+                                   
+                                       return ( <a key={author.id}>{author.name},</a> )
+                                    
+                                 } ) : ''
                             }
-                        </div>
-                        :''
-                    }
+                        </div>                  
                 </Col> 
             </Row>
             <Row>
@@ -131,7 +103,7 @@ function CreatePost(props) {
                                     <input onKeyUp={e => handleClick(e)} onChange={(e)=>handleChange(e)} value={tagValue} placeholder="Add tag"></input></Col>
                                 <Col>
                                     <a>Authors:</a>
-                                    <input onKeyUp={e => handleClickAuthor(e)} onChange={(e)=>handleChangeAuthor(e)} value={authorValue} type="text" placeholder="Your nickname"></input>
+                                    <PickerInput add={addAuthor}/>
                                 </Col>
                             </Row>
                             <Row>

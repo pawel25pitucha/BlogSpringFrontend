@@ -1,93 +1,75 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import Post from './Post'
-import {Col, Container, Row} from 'react-bootstrap'
 import '../Styles/Board.css'
 import CreatePost from './CreatePost'
 import axios from 'axios'
 
 import Navi from './Navi'
+import { useDispatch, useSelector } from 'react-redux'
+import logIN from '../actions/login'
 
-const postsPerPage = 50;
-let arrayForHoldingPosts = [];
-const url='https://blog-api-spring.herokuapp.com';
 
-function Board() {
+const url='http://localhost:8080';
 
-    const[loading ,setLoading]=useState(true);
-    const [error , setError] = useState(false);
+function Board(props) {
+    const dispatch = useDispatch();
+    const isLogged = useSelector(state => state);
     const[posts, setPosts] = useState([]);
-    const [postsToShow, setPostsToShow] = useState([]);
-    const [next, setNext] = useState(3);
-    const[authors, setAuthors]=useState([]);
+    const[user,setUser] = useState(null);
     
     useEffect(() => {
+      loadPosts();
+      setUser(props.user);
+      
 
-      const loadData = async () => {
-        console.log("loading posts...");
-        setLoading(true);
-        setError(false);
-        await axios({
-            method: 'GET',
-            url: `${url}/posts/get`,
-        }).then(res => {
-            res.data.map((data,index) => {
-                if(!posts.includes(data)){
-                    posts.push(data);
-                }
-            });
-            posts.reverse();
-            setLoading(false);
-            loopWithSlice(0,postsPerPage);
-        }).catch(e => {
-            setError(true);
-        })
-      }
-    
-  loadData();
 }, [])
-
-
-    const searchTags = (tag) => {
-        if(tag!==''){
-          searchPosts(tag);
-        }else setPostsToShow(arrayForHoldingPosts);
-    }
+const loadPosts=()=>{
+  axios.get(`${url}/api/post/get-all`).then(res => {
+    console.log(res.data);
+        var sorted = res.data.reverse();
+        setPosts(sorted);
     
-    const searchPosts = async (tag) =>{
-       await axios.get(`${url}/posts/tag/${tag}`)
-       .then(res =>  setPostsToShow(res.data));
-    }
+    }).catch(e => {
+     
+    })
+}
 
-    const loopWithSlice = (start, end) => {
-        let slicedPosts = posts.slice(start, end);
-        arrayForHoldingPosts = [...arrayForHoldingPosts, ...slicedPosts];
-        setPostsToShow(arrayForHoldingPosts);
-      };
-
-      const handleShowMorePosts = () => {
-        loopWithSlice(next, next + postsPerPage);
-        setNext(next + postsPerPage);
-      };
-
-      const newPostAdded = () => {
-        setNext(0);
-        window.location.reload();
+const search=(tag)=>{
+  if(tag==='') {loadPosts();}
+  else{
+  var filtered= [];
+  posts.map(post => {
+    post.tags.map(item=>{
+      if(item === tag){
+        filtered.push(post);
       }
+    })
+  });
+  setPosts(filtered);
+}
+}
+  
+const newPostAdded=()=>{
+    loadPosts();
+}
+
+
     return (
         <div>
-      
-               <Navi search={searchTags}/>
-                <CreatePost updatePosts={newPostAdded} />
+              <button onClick={() => dispatch(logIN())}>logout</button>
+               <Navi search={search}/>
+              {typeof user === 'undefined' ? ' ' : <CreatePost updatePosts={newPostAdded} />}
 
                 {
-                    postsToShow.map(post => {
-                    return <div key={post.id}><Post content={post.postContent} id={post.id} tag={post.tag} /></div>
+                    posts.map(post => {
+                    return (
+                    <div key={post.id}><Post user={user} loadPosts={newPostAdded}  content={post.content} id={post.id} tag={post.tags} authors={post.authors} /></div>
+                    )
                     })
                 } 
-                {loading&&<div>Loading...</div>}
+  
                
       
-            <button onClick={handleShowMorePosts}>Load more</button>
         </div>
     )
 }

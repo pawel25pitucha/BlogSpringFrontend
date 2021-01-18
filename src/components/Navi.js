@@ -3,6 +3,7 @@ import {Navbar , Nav ,InputGroup,FormControl} from 'react-bootstrap'
 import '../Styles/Nav.css'
 import HomeIcon from '@material-ui/icons/Home';
 import PersonIcon from '@material-ui/icons/Person';
+import { Link } from 'react-router-dom';
 
 
 function Navi(props) {
@@ -23,13 +24,17 @@ function Navi(props) {
     return (
         <div className="Navi">
               <Navbar className="Navbar" bg="light" variant="light" >
-                    <Navbar.Brand href="/">
+                    <Navbar.Brand>
+                        <Link to="/home">
                         <HomeIcon fontSize="large"/>
                         <span>Posts</span>
+                        </Link>
                     </Navbar.Brand>
-                    <Navbar.Brand href="/Authors">
+                    <Navbar.Brand>
+                        <Link to ="/authors">
                         <PersonIcon fontSize="large" />
                         <span>Authors</span>
+                        </Link>
                     </Navbar.Brand>
                 
                     
